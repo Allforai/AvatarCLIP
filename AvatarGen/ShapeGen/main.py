@@ -140,8 +140,8 @@ if __name__ == '__main__':
     }
 
     print("Start generating coarse body shape given the target text: {}".format(args.target_txt))
-    v, f, zero_beta_v = shape_gen(smpl_args, args.AE_path_fname, args.codebook_fname, \
-                     args.neutral_txt, args.target_txt)
+    v, f, zero_beta_v = shape_gen(smpl_args, args.AE_path_fname, args.codebook_fname,
+                                  args.neutral_txt, args.target_txt)
     if not os.path.exists(args.output_folder):
         os.makedirs(args.output_folder, exist_ok=True)
     output_fname = os.path.join(args.output_folder, '_'.join(args.target_txt.split(' ')) + '.obj')
