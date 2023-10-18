@@ -62,7 +62,7 @@ class BaseMotionGenerator(nn.Module, metaclass=ABCMeta):
         raise NotImplementedError()
 
     def get_text_feature(self, text: str) -> Tensor:
-        text = clip.tokenize([text]).to(self.device)
+        text = clip.tokenize([text], truncate=True).to(self.device)
         with torch.no_grad():
             text_features = self.clip.encode_text(text)
             text_feature = text_features[0]

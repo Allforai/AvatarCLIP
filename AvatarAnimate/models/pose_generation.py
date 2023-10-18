@@ -54,7 +54,7 @@ class BasePoseGenerator(nn.Module, metaclass=ABCMeta):
         raise NotImplementedError()
 
     def get_text_feature(self, text: str) -> Tensor:
-        text = clip.tokenize([text]).to(self.device)
+        text = clip.tokenize([text], truncate=True).to(self.device)
         with torch.no_grad():
             text_features = self.clip.encode_text(text)
             text_feature = text_features[0]
@@ -325,5 +325,8 @@ class VPoserCodebook(BasePoseGenerator):
             latent_codes = self.codebook[indexs]
             poses = self.vp.decode(latent_codes)['pose_body'].reshape(self.pre_topk, -1)
             poses = self.suppress_duplicated_poses(poses, threshold=self.filter_threshold)
+            if len(poses) < self.topk:
+                padding = poses[-1][None].repeat((self.topk-len(poses), 1))
+                poses = torch.cat((poses, padding), axis=0)
             poses = poses[:self.topk]
         return poses
