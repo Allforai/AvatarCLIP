@@ -13,11 +13,13 @@ from tqdm import tqdm
 import numpy as np
 import codecs as cs
 from os.path import join as pjoin
+from ood_dataset import OOD_Dataset
 from visualize import render_pose, render_motion
 # import pydevd_pycharm
 # pydevd_pycharm.settrace('10.8.31.54', port=18888, stdoutToServer=True, stderrToServer=True)
 
 def main(conf_path):
+    # print("conf_path:", conf_path)
     split_index = int(conf_path.split('/')[-1].split('_')[-1].split('.')[0])
     print(" finishing part " + str(split_index))
     print(" finishing part " + str(split_index))
@@ -29,17 +31,21 @@ def main(conf_path):
 
     base_exp_dir = conf.get_string('general.base_exp_dir')
     mode = conf.get_string('general.mode')
-    keyids = np.load(os.path.join(conf.get_string('general.text'), 'split_' + str(split_index) + '.npy'))
-
+    data = OOD_Dataset(motion_dir=None, motion_length=64)
+    textlist = []
+    keyids = []
+    for keyid in tqdm(range(92 * split_index, 92 * (split_index + 1))):
+        _, caption, _ = data.load_keyid(keyid)
+        textlist.append(caption)
+        keyids.append(str(keyid).zfill(5))
     for keyid in tqdm(keyids):
         if os.path.exists(os.path.join(base_exp_dir, keyid)) and os.path.exists(os.path.join(base_exp_dir, keyid, 'motion.npy')):
             pass
         else:
+            text = textlist[int(keyid) - 92 * split_index]
             if not os.path.exists(os.path.join(base_exp_dir, keyid)):
                 os.makedirs(os.path.join(base_exp_dir, keyid))
             print(os.path.join(base_exp_dir, keyid))
-            with cs.open(pjoin('/mnt/disk_1/jinpeng/T2M/data/HumanML3D/texts', keyid + '.txt')) as f:
-                text = f.readline().split('#')[0]
             pose_generator = build_pose_generator(dict(conf['pose_generator']))
             candidate_poses = pose_generator.get_topk_poses(text)
             if mode == 'pose':
