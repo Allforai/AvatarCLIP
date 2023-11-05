@@ -33,7 +33,7 @@ class OOD_Dataset(Dataset):
         #     except:
         #         pass
         self.data_dict = np.load('/mnt/disk_2/jinpeng/AvatarCLIP/AvatarAnimate/data/ood_data_dict_368.npy', allow_pickle=True)
-        self.name_list = np.load('/mnt/disk_2/jinpeng/AvatarCLIP/AvatarAnimate/data/ood_sub_name_list.npy', allow_pickle=True)
+        self.name_list = np.load('/mnt/disk_2/jinpeng/AvatarCLIP/AvatarAnimate/data/ood_name_list_368.npy', allow_pickle=True)
         # self.length_list = np.load('data/debug/ood_length_list.npy', allow_pickle=True)
 
     def __len__(self):
@@ -52,6 +52,7 @@ class OOD_Dataset(Dataset):
         features = motion['features']
         features = features.T.unsqueeze(1).to(torch.float32)
         return features, caption
+
 
 
 def findAllFile(base):
