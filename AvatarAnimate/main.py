@@ -2,8 +2,8 @@ import os
 import argparse
 from pyhocon import ConfigFactory
 import pydevd_pycharm
-# pydevd_pycharm.settrace('10.8.31.54', port=18888, stdoutToServer=True, stderrToServer=True)
-from tools import axis_angle_to_matrix, matrix_to_rotation_6d
+# pydevd_pycharm.settrace('10.81.48.3', port=18888, stdoutToServer=True, stderrToServer=True)
+from tools import axis_angle_to_matrix, matrix_to_rotation_6d, axis_angle_to
 import torch
 from models.builder import (
     build_pose_generator,
@@ -34,7 +34,7 @@ def main(conf_path):
     data = OOD_Dataset(motion_dir=None, motion_length=64)
     textlist = []
     keyids = []
-    for keyid in tqdm(range(92 * split_index, 92 * (split_index + 1))):
+    for keyid in tqdm(range(46 * split_index, 46 * (split_index + 1))):
         _, caption, _ = data.load_keyid(keyid)
         textlist.append(caption)
         keyids.append(str(keyid).zfill(5))
@@ -42,7 +42,7 @@ def main(conf_path):
         if os.path.exists(os.path.join(base_exp_dir, keyid)) and os.path.exists(os.path.join(base_exp_dir, keyid, 'motion.npy')):
             pass
         else:
-            text = textlist[int(keyid) - 92 * split_index]
+            text = textlist[int(keyid) - 46 * split_index]
             if not os.path.exists(os.path.join(base_exp_dir, keyid)):
                 os.makedirs(os.path.join(base_exp_dir, keyid))
             print(os.path.join(base_exp_dir, keyid))
@@ -52,10 +52,11 @@ def main(conf_path):
                 exit(0)
             motion_generator = build_motion_generator(dict(conf['motion_generator']))
             motion = motion_generator.get_motion(text, poses=candidate_poses)
-            motion = axis_angle_to_matrix(motion[:, 3:].reshape(60, -1, 3))
+            motion = torch.cat((torch.tensor([np.pi / 4, -np.pi / 2, -np.pi / 2]).to('cuda').repeat(60, 1), motion[:, :63]), dim=-1).reshape(60, 22, -1)
+            motion = axis_angle_to_matrix(motion)
             motion = matrix_to_rotation_6d(motion).reshape(60, -1).detach().cpu().numpy()
             padding = np.zeros((60, 3))
-            motion = np.concatenate((padding, motion), axis=-1).T
+            motion = np.concatenate((padding, motion), axis=-1)[None]
             npy_path = os.path.join(base_exp_dir, keyid, 'motion.npy')
             np.save(npy_path, motion)
 
