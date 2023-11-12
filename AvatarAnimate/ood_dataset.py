@@ -32,8 +32,10 @@ class OOD_Dataset(Dataset):
         #         self.name_list.append(motion_file)
         #     except:
         #         pass
-        self.data_dict = np.load('/mnt/disk_1/jinpeng/T2M/data/debug/ood_data_dict_368.npy', allow_pickle=True)
-        self.name_list = np.load('/mnt/disk_1/jinpeng/T2M/data/debug/ood_name_list_368.npy', allow_pickle=True)
+        # self.data_dict = np.load('/mnt/disk_1/jinpeng/T2M/data/debug/ood_data_dict_368.npy', allow_pickle=True)
+        self.data_dict = np.load('/mnt/disk_1/jinpeng/T2M/data/debug/kungfu_orient_1040.npy',
+                                 allow_pickle=True)[829:]
+        # self.name_list = np.load('/mnt/disk_1/jinpeng/T2M/data/debug/ood_name_list_368.npy', allow_pickle=True)
         # self.length_list = np.load('data/debug/ood_length_list.npy', allow_pickle=True)
 
     def __len__(self):
